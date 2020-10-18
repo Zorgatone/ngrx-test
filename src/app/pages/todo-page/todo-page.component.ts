@@ -4,6 +4,12 @@ import {
   OnInit,
   ViewEncapsulation,
 } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { List } from 'immutable';
+import { Observable } from 'rxjs';
+import { addTodo, setIsDone } from 'src/app/actions/todo.actions';
+import { State } from 'src/app/reducers/';
+import { todosListSelector } from 'src/app/selectors/todos.selectors';
 
 import Todo from '../../model/todo';
 import { TodoService } from '../../services/todo/todo.service';
@@ -17,9 +23,12 @@ import { TodoService } from '../../services/todo/todo.service';
 })
 export class TodoPageComponent implements OnInit {
   public title: string;
+  public todo$: Observable<List<Todo>>;
 
-  public constructor(public todoService: TodoService) {
+  public constructor(private store: Store<State>) {
     this.title = '';
+
+    this.todo$ = this.store.select(todosListSelector);
   }
 
   public ngOnInit(): void {
@@ -27,18 +36,24 @@ export class TodoPageComponent implements OnInit {
   }
 
   public updateTodo(todo: Todo, checked: boolean): void {
-    if (todo.isDone !== checked) {
-      this.todoService.toggleTodo(todo);
-    }
+    this.store.dispatch(
+      setIsDone({
+        todo: todo,
+        isDone: checked,
+      })
+    );
   }
 
   public createTodo(): void {
-    this.todoService.addTodo(
-      new Todo({
-        title: this.title,
-        isDone: false,
+    this.store.dispatch(
+      addTodo({
+        todo: new Todo({
+          title: this.title,
+          isDone: false,
+        }),
       })
     );
+
     this.title = '';
   }
 }
