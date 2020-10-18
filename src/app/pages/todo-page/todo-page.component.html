@@ -1,0 +1,14 @@
+<h1>Todo List</h1>
+
+<input type="text" placeholder="Enter Todo" [(ngModel)]="title" />
+<button type="button" (click)="createTodo()">Add</button>
+
+<ul>
+  <li *ngFor="let todo of (todoService.todo$ | async)?.toArray()">
+    {{ todo.title }}
+    <app-checkbox
+      [checked]="todo.isDone"
+      (checkedChange)="updateTodo(todo, $event)"
+    ></app-checkbox>
+  </li>
+</ul>
